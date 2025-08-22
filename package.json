@@ -7,6 +7,7 @@
     "@testing-library/jest-dom": "^6.8.0",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^13.5.0",
+    "axios": "^1.11.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-scripts": "5.0.1",
@@ -14,7 +15,8 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "react-scripts build && npm run build:analyze",
+    "build:analyze": "node scripts/print-build-hash.js || exit 0",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

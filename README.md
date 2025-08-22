@@ -1,6 +1,21 @@
 # Getting Started with Create React App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Agent Chat – React frontend for n8n agent
+
+Setup
+1) Copy .env.example to .env and set your n8n endpoints
+2) npm install
+3) npm start
+
+Build
+- npm run build
+
+Environment
+- REACT_APP_AGENT_BASE_URL e.g., https://your-n8n-host.com
+- REACT_APP_AGENT_STREAM_PATH default /sse
+- REACT_APP_AGENT_WS_URL optional wss://your-n8n-host.com/ws
+- REACT_APP_AGENT_SEND_PATH default /message
+- REACT_APP_AGENT_UPLOAD_PATH default /upload
 
 ## Available Scripts
 
