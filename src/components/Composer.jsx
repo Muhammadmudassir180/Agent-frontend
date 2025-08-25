@@ -131,8 +131,16 @@ function Composer({ onSend }) {
           rows={1}
           placeholder={isRecording ? `Recording... ${Math.round(recordMs/1000)}s` : "Type a message, press Enter to send..."}
           value={text}
-          onChange={(e) => setText(e.target.value)}
+         onChange={(e) => {
+            setText(e.target.value);
+            e.target.style.height = "auto";          // reset height
+            e.target.style.height = e.target.scrollHeight + "px"; // set new height
+          }}
           onKeyDown={onKeyDown}
+          style={{
+            overflow: "hidden",
+            resize: "none",
+          }}
         />
         <button className="send-btn" onClick={onSubmit}>Send</button>
       </div>

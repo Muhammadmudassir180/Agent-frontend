@@ -14,8 +14,8 @@ import axios from 'axios';
 
 export class AgentClient {
   constructor() {
-    this.baseUrl = process.env.REACT_APP_AGENT_BASE_URL || '';
-    this.streamPath = process.env.REACT_APP_AGENT_STREAM_PATH || '/sse';
+    this.baseUrl ='http://localhost:5678/webhook-test/message';
+    this.streamPath ='/sse';
     this.wsUrl = process.env.REACT_APP_AGENT_WS_URL || '';
     this.sendPath = process.env.REACT_APP_AGENT_SEND_PATH || '/message';
     this.uploadPath = process.env.REACT_APP_AGENT_UPLOAD_PATH || '/upload';
@@ -74,8 +74,17 @@ export class AgentClient {
 
   async sendMessage({ text, files }) {
     const body = { text: text || '', files: files || [] };
-    const url = this.baseUrl + this.sendPath;
+    const url = this.baseUrl;
+    console.log("this is the URL for sending the chat", url)
+    console.log("this is the body for sending the chat", body)
     const res = await axios.post(url, body, { withCredentials: true });
+    // const response = await fetch("http://localhost:5678/webhook-test/message", {
+    //   method: "POST",
+    //   headers: { "Content-Type": "application/json" },
+    //   body: JSON.stringify({ text: body }),
+    // });
+    // console.log("data", response.json() );
+    // return await response.json()
     return res.data || {};
   }
 
