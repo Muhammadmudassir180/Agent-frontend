@@ -14,7 +14,7 @@ import axios from 'axios';
 
 export class AgentClient {
   constructor() {
-    this.baseUrl ='http://localhost:5678/webhook-test/message';
+    this.baseUrl ='http://localhost:5678/webhook';
     this.streamPath ='/sse';
     this.wsUrl = process.env.REACT_APP_AGENT_WS_URL || '';
     this.sendPath = process.env.REACT_APP_AGENT_SEND_PATH || '/message';
@@ -74,7 +74,7 @@ export class AgentClient {
 
   async sendMessage({ text, files }) {
     const body = { text: text || '', files: files || [] };
-    const url = this.baseUrl;
+    const url = this.baseUrl + this.sendPath;
     console.log("this is the URL for sending the chat", url)
     console.log("this is the body for sending the chat", body)
     const res = await axios.post(url, body, { withCredentials: true });
