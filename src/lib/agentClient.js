@@ -10,15 +10,16 @@
   - REACT_APP_AGENT_UPLOAD_PATH: e.g., /upload
 */
 
-import axios from 'axios';
+// using fetch API for all requests
 
 export class AgentClient {
   constructor() {
-    this.baseUrl = process.env.REACT_APP_AGENT_BASE_URL || '';
+    this.baseUrl = "http://localhost:5678/webhook-test";
     this.streamPath = process.env.REACT_APP_AGENT_STREAM_PATH || '/sse';
     this.wsUrl = process.env.REACT_APP_AGENT_WS_URL || '';
     this.sendPath = process.env.REACT_APP_AGENT_SEND_PATH || '/message';
     this.uploadPath = process.env.REACT_APP_AGENT_UPLOAD_PATH || '/upload';
+    this.withCredentials = (process.env.REACT_APP_WITH_CREDENTIALS === 'true');
     this.eventSource = null;
     this.websocket = null;
     this.unsub = () => {};
@@ -30,7 +31,7 @@ export class AgentClient {
 
     // Try SSE first
     try {
-      const es = new EventSource(this.baseUrl + this.streamPath, { withCredentials: true });
+      const es = new EventSource(this.baseUrl + this.streamPath, { withCredentials: this.withCredentials });
       this.eventSource = es;
       es.onopen = () => notify({ type: 'open' });
       es.onerror = () => notify({ type: 'close' });
@@ -72,20 +73,49 @@ export class AgentClient {
     return this.unsub;
   }
 
-  async sendMessage({ text, files }) {
-    const body = { text: text || '', files: files || [] };
-    const url = this.baseUrl + this.sendPath;
-    const res = await axios.post(url, body, { withCredentials: true });
-    return res.data || {};
+  async sendMessage(arg1, arg2) {
+    // Support both: sendMessage({ text, files, chatId }) and sendMessage(text, files)
+    const { text, files, chatId } = typeof arg1 === 'object' && arg1 !== null
+      ? { text: arg1.text, files: arg1.files, chatId: arg1.chatId }
+      : { text: arg1, files: arg2, chatId: undefined };
+
+    const payload = {
+      type: "message",
+      payload: {
+        role: "user",
+        chatId: chatId || undefined,
+        content: text || "",
+        files: files || [],
+      },
+    };
+    const base_url=this.baseUrl + this.sendPath;
+    console.log("This is the URL for sending the message", base_url);
+    console.log("This is the message payload", payload);
+
+    const res = await fetch(base_url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: this.withCredentials ? 'include' : 'omit',
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return res.json().catch(() => ({}));
+
   }
+
 
   async uploadFiles(files) {
     if (!files || files.length === 0) return [];
     const form = new FormData();
     for (const f of files) form.append('files', f);
     const url = this.baseUrl + this.uploadPath;
-    const res = await axios.post(url, form, { withCredentials: true, headers: { 'Content-Type': 'multipart/form-data' } });
-    return res.data;
+    const res = await fetch(url, {
+      method: 'POST',
+      credentials: this.withCredentials ? 'include' : 'omit',
+      body: form
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return res.json();
   }
 }
 

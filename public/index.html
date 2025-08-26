@@ -16,7 +16,7 @@
     -->
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
     <!-- Basic CSP; update REACT_APP_AGENT_ORIGIN in .env for your n8n host -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: blob:; media-src 'self' blob:; font-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self' https://localhost:5678 https://localhost:443 wss://localhost:5678 wss://localhost:443 https://example-n8n-host.com wss://example-n8n-host.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self' https://example-n8n-host.com;" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: blob: https: http:; media-src 'self' blob: https: http:; font-src 'self' https:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self' https: http: wss: ws: http://localhost:5678 http://127.0.0.1:5678 ws://localhost:5678 ws://127.0.0.1:5678; frame-ancestors 'none'; base-uri 'self'; form-action 'self' https: http:;" />
     <!--
       Notice the use of %PUBLIC_URL% in the tags above.
       It will be replaced with the URL of the `public` folder during the build.

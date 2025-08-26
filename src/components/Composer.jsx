@@ -10,6 +10,7 @@ function Composer({ onSend }) {
   const dropRef = useRef(null);
   const mediaRecorderRef = useRef(null);
   const recordTimerRef = useRef(null);
+  const textareaRef = useRef(null);
 
   const onFilesSelected = useCallback((fileList) => {
     const arr = Array.from(fileList || []);
@@ -29,6 +30,13 @@ function Composer({ onSend }) {
       onSubmit();
     }
   };
+
+  // 🔹 Auto-resize textarea when text changes
+  useEffect(() => {
+    if (!textareaRef.current) return;
+    textareaRef.current.style.height = 'auto'; // reset
+    textareaRef.current.style.height = textareaRef.current.scrollHeight + 'px';
+  }, [text]);
 
   // drag and drop
   const onDragOver = (e) => { e.preventDefault(); e.stopPropagation(); };
@@ -127,11 +135,17 @@ function Composer({ onSend }) {
         </div>
         <button className="icon-btn" onClick={isRecording ? stopRecording : startRecording} title="Record voice">{isRecording ? '⏹' : '🎤'}</button>
         <textarea
+          ref={textareaRef}
           className="text-input dropzone"
           rows={1}
+          style={{ overflow: 'hidden', resize: 'none' }}
           placeholder={isRecording ? `Recording... ${Math.round(recordMs/1000)}s` : "Type a message, press Enter to send..."}
           value={text}
-          onChange={(e) => setText(e.target.value)}
+           onChange={(e) => {
+            setText(e.target.value);
+            e.target.style.height = "auto";          // reset height
+            e.target.style.height = e.target.scrollHeight + "px"; // set new height
+          }}
           onKeyDown={onKeyDown}
         />
         <button className="send-btn" onClick={onSubmit}>Send</button>
@@ -141,4 +155,3 @@ function Composer({ onSend }) {
 }
 
 export default Composer;
-
