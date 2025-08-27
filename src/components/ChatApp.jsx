@@ -68,9 +68,36 @@ function ChatApp() {
         files: files?.map(f => ({ name: f.name, size: f.size })),
       },
     ]);
-
+  
     try {
-      await client.sendInlineFiles({ text, files, chatId: activeChatId });
+      const response = await client.sendInlineFiles({ text, files, chatId: activeChatId });
+      console.log("Full server response:", JSON.stringify(response, null, 2));
+  
+      // --- Recursive extractor ---
+      const extractText = (obj) => {
+        if (!obj) return [];
+        if (typeof obj === "string") return [obj];
+        if (typeof obj === "number" || typeof obj === "boolean") return [String(obj)];
+        if (Array.isArray(obj)) return obj.flatMap(extractText);
+        if (typeof obj === "object") {
+          return Object.values(obj).flatMap(extractText);
+        }
+        return [];
+      };
+  
+      const texts = extractText(response)
+        .map(s => s.trim())
+        .filter(Boolean);
+  
+      // Deduplicate + pick the longest as "main reply"
+      const unique = [...new Set(texts)];
+      const agentText = unique.sort((a, b) => b.length - a.length)[0] || "⚠️ No reply text found";
+  
+      setMessages((prev) => [
+        ...prev,
+        { id: 'agent-' + Date.now(), role: 'agent', text: agentText },
+      ]);
+  
     } catch (e) {
       setMessages((prev) => [
         ...prev,
@@ -82,6 +109,7 @@ function ChatApp() {
       ]);
     }
   };
+  
 
 
   const onLogin = () => {
