@@ -70,11 +70,7 @@ function ChatApp() {
     ]);
 
     try {
-      let uploaded = [];
-      if (files && files.length > 0) {
-        uploaded = await client.uploadFiles(files); // your uploader
-      }
-      await client.sendMessage({ text, files: uploaded, chatId: activeChatId });
+      await client.sendInlineFiles({ text, files, chatId: activeChatId });
     } catch (e) {
       setMessages((prev) => [
         ...prev,

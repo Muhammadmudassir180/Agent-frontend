@@ -15,6 +15,10 @@ function Composer({ onSend }) {
   const onFilesSelected = useCallback((fileList) => {
     const arr = Array.from(fileList || []);
     setFiles((prev) => [...prev, ...arr]);
+    // Reset the input so selecting the same file again triggers onChange
+    if (inputRef.current) {
+      inputRef.current.value = '';
+    }
   }, []);
 
   const onSubmit = useCallback(() => {

@@ -73,11 +73,33 @@ export class AgentClient {
     return this.unsub;
   }
 
-  async sendMessage(arg1, arg2) {
-    // Support both: sendMessage({ text, files, chatId }) and sendMessage(text, files)
+  // sendMessage deprecated and removed
+
+  async sendInlineFiles(arg1, arg2) {
     const { text, files, chatId } = typeof arg1 === 'object' && arg1 !== null
       ? { text: arg1.text, files: arg1.files, chatId: arg1.chatId }
       : { text: arg1, files: arg2, chatId: undefined };
+
+    const base_url=this.baseUrl + this.sendPath;
+
+    const toBase64 = (file) => new Promise((resolve, reject) => {
+      try {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result).split(',')[1] || '');
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      } catch (e) {
+        reject(e);
+      }
+    });
+
+    const filesArray = Array.isArray(files) ? files : [];
+    const inlineFiles = [];
+    for (const f of filesArray) {
+      if (!f) continue;
+      const base64 = await toBase64(f);
+      inlineFiles.push({ name: f.name || 'file', type: f.type || '', size: f.size || 0, base64 });
+    }
 
     const payload = {
       type: "message",
@@ -85,12 +107,9 @@ export class AgentClient {
         role: "user",
         chatId: chatId || undefined,
         content: text || "",
-        files: files || [],
+        files: inlineFiles,
       },
     };
-    const base_url=this.baseUrl + this.sendPath;
-    console.log("This is the URL for sending the message", base_url);
-    console.log("This is the message payload", payload);
 
     const res = await fetch(base_url, {
       method: 'POST',
@@ -100,22 +119,34 @@ export class AgentClient {
     });
     if (!res.ok) throw new Error('HTTP ' + res.status);
     return res.json().catch(() => ({}));
-
   }
 
 
-  async uploadFiles(files) {
-    if (!files || files.length === 0) return [];
+  async uploadFiles(files, chatId) {
+    if (!files || files.length === 0) return {};
     const form = new FormData();
-    for (const f of files) form.append('files', f);
-    const url = this.baseUrl + this.uploadPath;
+    // Label this as a files-only message for backend routing
+    form.append('type', 'files');
+    form.append('role', 'user');
+    if (chatId) form.append('chatId', chatId);
+
+    const filesMeta = [];
+    files.forEach((file, index) => {
+      if (!file) return;
+      const key = index === 0 ? 'data' : `data_${index}`;
+      form.append(key, file);
+      filesMeta.push({ key, name: file.name || key, type: file.type || '', size: file.size || 0 });
+    });
+    form.append('filesMeta', JSON.stringify(filesMeta));
+
+    const url = this.baseUrl + this.sendPath;
     const res = await fetch(url, {
       method: 'POST',
       credentials: this.withCredentials ? 'include' : 'omit',
       body: form
     });
     if (!res.ok) throw new Error('HTTP ' + res.status);
-    return res.json();
+    return res.json().catch(() => ({}));
   }
 }
 
