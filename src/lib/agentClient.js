@@ -154,7 +154,8 @@ export class AgentClient {
 
     if (!res.ok) throw new Error('HTTP ' + res.status);
 
-    return { status: "ok", sent: payloads.length };
+    return res.json().catch(() => ({}));
+;
   }
 
 
