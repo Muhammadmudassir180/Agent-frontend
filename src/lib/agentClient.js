@@ -14,7 +14,7 @@
 
 export class AgentClient {
   constructor() {
-    this.baseUrl = "http://localhost:5678/webhook";
+    this.baseUrl = "http://localhost:5678/webhook-test";
     this.streamPath = process.env.REACT_APP_AGENT_STREAM_PATH || '/sse';
     this.wsUrl = process.env.REACT_APP_AGENT_WS_URL || '';
     this.sendPath = process.env.REACT_APP_AGENT_SEND_PATH || '/message';
@@ -74,13 +74,12 @@ export class AgentClient {
   }
 
   // sendMessage deprecated and removed
-
   async sendInlineFiles(arg1, arg2) {
     const { text, files, chatId } = typeof arg1 === 'object' && arg1 !== null
       ? { text: arg1.text, files: arg1.files, chatId: arg1.chatId }
       : { text: arg1, files: arg2, chatId: undefined };
 
-    const base_url=this.baseUrl + this.sendPath;
+    const base_url = this.baseUrl + this.sendPath;
 
     const toBase64 = (file) => new Promise((resolve, reject) => {
       try {
@@ -95,31 +94,70 @@ export class AgentClient {
 
     const filesArray = Array.isArray(files) ? files : [];
     const inlineFiles = [];
+
     for (const f of filesArray) {
       if (!f) continue;
       const base64 = await toBase64(f);
-      inlineFiles.push({ name: f.name || 'file', type: f.type || '', size: f.size || 0, base64 });
+
+      // ✅ Differentiate file type
+      let fileType = "file"; // default
+      if (f.type.startsWith("image/")) {
+        fileType = "image";
+      } else if (f.type.startsWith("audio/")) {
+        fileType = "audio";
+      } else if (f.type.startsWith("video/")) {
+        fileType = "video";
+      } else {
+        fileType = "file"; // pdf, docs, etc.
+      }
+
+      inlineFiles.push({
+        type: fileType,
+        payload: {
+          role: "user",
+          chatId: chatId || undefined,
+          mime_type: f.type || '',
+          name: f.name || 'file',
+          size: f.size || 0,
+          base64,
+        },
+      });
     }
 
-    const payload = {
-      type: "message",
-      payload: {
-        role: "user",
-        chatId: chatId || undefined,
-        content: text || "",
-        files: inlineFiles,
-      },
-    };
+    // Build payload container
+    const payloads = [];
 
+    // ✅ Add text payload separately
+    if (text && text.trim()) {
+      payloads.push({
+        type: "message",
+        payload: {
+          role: "user",
+          chatId: chatId || undefined,
+          content: text.trim(),
+        },
+      });
+    }
+
+    // ✅ Add files payloads with proper types
+    if (inlineFiles.length) {
+      payloads.push(...inlineFiles);
+    }
+
+    // 🔑 Send everything in ONE request
     const res = await fetch(base_url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: this.withCredentials ? 'include' : 'omit',
-      body: JSON.stringify(payload)
+      body: JSON.stringify({ items: payloads })   // wrap all in one object
     });
+
     if (!res.ok) throw new Error('HTTP ' + res.status);
-    return res.json().catch(() => ({}));
+
+    return { status: "ok", sent: payloads.length };
   }
+
+
 
 
   async uploadFiles(files, chatId) {
