@@ -10,12 +10,10 @@
   - REACT_APP_AGENT_UPLOAD_PATH: e.g., /upload
 */
 
-import axios from 'axios';
-
 export class AgentClient {
   constructor() {
-    this.baseUrl ='http://localhost:5678/webhook';
-    this.streamPath ='/sse';
+    this.baseUrl = 'http://localhost:5678/webhook';
+    this.streamPath = '/sse';
     this.wsUrl = process.env.REACT_APP_AGENT_WS_URL || '';
     this.sendPath = process.env.REACT_APP_AGENT_SEND_PATH || '/message';
     this.uploadPath = process.env.REACT_APP_AGENT_UPLOAD_PATH || '/upload';
@@ -77,15 +75,14 @@ export class AgentClient {
     const url = this.baseUrl + this.sendPath;
     console.log("this is the URL for sending the chat", url)
     console.log("this is the body for sending the chat", body)
-    const res = await axios.post(url, body, { withCredentials: true });
-    // const response = await fetch("http://localhost:5678/webhook-test/message", {
-    //   method: "POST",
-    //   headers: { "Content-Type": "application/json" },
-    //   body: JSON.stringify({ text: body }),
-    // });
-    // console.log("data", response.json() );
-    // return await response.json()
-    return res.data || {};
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify(body)
+    });
+    const data = await res.json();
+    return data || {};
   }
 
   async uploadFiles(files) {
@@ -93,8 +90,13 @@ export class AgentClient {
     const form = new FormData();
     for (const f of files) form.append('files', f);
     const url = this.baseUrl + this.uploadPath;
-    const res = await axios.post(url, form, { withCredentials: true, headers: { 'Content-Type': 'multipart/form-data' } });
-    return res.data;
+    const res = await fetch(url, {
+      method: "POST",
+      credentials: "include",
+      body: form
+      // Do not set Content-Type for FormData; browser sets it automatically
+    });
+    const data = await res.json();
+    return data;
   }
 }
-
