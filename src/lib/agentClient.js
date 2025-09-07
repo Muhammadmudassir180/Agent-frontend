@@ -14,7 +14,8 @@
 
 export class AgentClient {
   constructor() {
-    this.baseUrl = "http://localhost:5678/webhook-test";
+    // this.baseUrl = "http://localhost:5678/webhook-test";
+    this.baseUrl="http://localhost:8000/"
     this.streamPath = process.env.REACT_APP_AGENT_STREAM_PATH || '/sse';
     this.wsUrl = process.env.REACT_APP_AGENT_WS_URL || '';
     this.sendPath = process.env.REACT_APP_AGENT_SEND_PATH || '/message';
