@@ -1,0 +1,73 @@
+/* Global dark-ish theme and layout */
+:root {
+  --bg: #0f141a;
+  --panel: #151c24;
+  --panel-2: #0e1721;
+  --text: #e8eef5;
+  --muted: #93a4b8;
+  --primary: #67b3ff;
+  --primary-700: #3b8fe0;
+  --danger: #ff6b6b;
+  --border: #243140;
+  --success: #6be795;
+  --shadow: 0 10px 30px rgba(0,0,0,0.35);
+}
+
+* { box-sizing: border-box; }
+html, body, #root { height: 100%; }
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+    Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  background: radial-gradient(1200px 800px at 80% -10%, #1a2430 0%, var(--bg) 60%),
+              radial-gradient(900px 700px at -10% 110%, #12202e 0%, var(--bg) 60%);
+  color: var(--text);
+}
+
+
+.app-shell { display: grid; grid-template-rows: auto 1fr auto; height: 100vh; }
+.main-layout { display: grid; grid-template-columns: 260px 1fr; height: 100vh; }
+.main-right { display: grid; grid-template-rows: auto 1fr; min-height: 0; }
+
+.chat-container { display: grid; grid-template-rows: 1fr auto; height: 100%; min-height: 0; }
+
+/* ===== Scrollbar Styling ===== */
+.messages::-webkit-scrollbar {
+  width: 8px;              /* slim scrollbar */
+}
+
+.messages::-webkit-scrollbar-track {
+  background: transparent; /* no background, blends with chat */
+}
+
+.messages::-webkit-scrollbar-thumb {
+  background-color: var(--border);  /* subtle border color */
+  border-radius: 10px;
+  border: 2px solid transparent;    /* gives padding effect */
+}
+
+.messages::-webkit-scrollbar-thumb:hover {
+  background-color: var(--primary); /* highlight on hover */
+}
+
+
+.messages {
+  padding: 16px 0;
+  overflow-y: auto;   /* only here */
+  overflow-x: hidden; /* prevent horizontal scroll */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 0;
+  height: 100%;       /* ensure it fills available space */
+  scrollbar-width: thin; /* for Firefox */
+  scrollbar-color: var(--border) transparent;
+  
+}
+
+
+.messages-inner { width: 100%; max-width: 820px; padding: 0 16px; }
+
+/* @media (max-width: 900px) { .main-layout { grid-template-columns: 1fr; } } */
+@media (max-width: 720px) { .messages-inner { padding: 0 10px; } }
+
