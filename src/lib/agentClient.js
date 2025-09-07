@@ -73,13 +73,14 @@ export class AgentClient {
     return this.unsub;
   }
 
-  // sendMessage deprecated and removed
+ 
   async sendInlineFiles(arg1, arg2) {
     const { text, files, chatId } = typeof arg1 === 'object' && arg1 !== null
       ? { text: arg1.text, files: arg1.files, chatId: arg1.chatId }
       : { text: arg1, files: arg2, chatId: undefined };
 
-    const base_url = this.baseUrl + this.sendPath;
+    // const base_url = this.baseUrl + this.sendPath;
+    const base_url="http://localhost:8000/chat";
 
     const toBase64 = (file) => new Promise((resolve, reject) => {
       try {
@@ -189,3 +190,4 @@ export class AgentClient {
   }
 }
 
+  
