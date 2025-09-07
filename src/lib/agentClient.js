@@ -15,7 +15,7 @@
 export class AgentClient {
   constructor() {
     // this.baseUrl = "http://localhost:5678/webhook-test";
-    this.baseUrl="http://localhost:8000/"
+    this.baseUrl=" https://fa84055f5096.ngrok-free.app"
     this.streamPath = process.env.REACT_APP_AGENT_STREAM_PATH || '/sse';
     this.wsUrl = process.env.REACT_APP_AGENT_WS_URL || '';
     this.sendPath = process.env.REACT_APP_AGENT_SEND_PATH || '/message';
@@ -81,7 +81,7 @@ export class AgentClient {
       : { text: arg1, files: arg2, chatId: undefined };
 
     // const base_url = this.baseUrl + this.sendPath;
-    const base_url="http://localhost:8000/chat";
+    const base_url=" https://fa84055f5096.ngrok-free.app/chat";
 
     const toBase64 = (file) => new Promise((resolve, reject) => {
       try {
@@ -157,7 +157,7 @@ export class AgentClient {
     if (!res.ok) throw new Error('HTTP ' + res.status);
 
     return res.json().catch(() => ({}));
-;
+
   }
 
 
