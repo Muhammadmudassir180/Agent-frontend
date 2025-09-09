@@ -80,8 +80,8 @@ export class AgentClient {
       ? { text: arg1.text, files: arg1.files, chatId: arg1.chatId }
       : { text: arg1, files: arg2, chatId: undefined };
 
-    // const base_url = this.baseUrl + this.sendPath;
-    const base_url=" https://fa84055f5096.ngrok-free.app/chat";
+    const base_url = this.baseUrl + "/chat";
+    // const base_url=" https://fa84055f5096.ngrok-free.app/chat";
 
     const toBase64 = (file) => new Promise((resolve, reject) => {
       try {
